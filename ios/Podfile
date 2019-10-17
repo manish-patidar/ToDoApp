@@ -34,6 +34,8 @@ target 'ReactNativeHooks' do
   pod 'glog', :podspec => '../node_modules/react-native/third-party-podspecs/glog.podspec'
   pod 'Folly', :podspec => '../node_modules/react-native/third-party-podspecs/Folly.podspec'
 
+  pod 'react-native-calendar-events', :path => '../node_modules/react-native-calendar-events'
+
   target 'ReactNativeHooksTests' do
     inherit! :search_paths
     # Pods for testing
