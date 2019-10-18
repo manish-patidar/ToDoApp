@@ -98,7 +98,7 @@ export default class createToDo extends Component{
                 calendarId: this.state.calendarID,
                 startDate: startDate,
                 endDate: endDate,
-                notes: description
+                description: description
               }).then((value) => {
                 this.props.navigation.goBack()
                 this.props.navigation.state.params.returnData();
@@ -110,15 +110,24 @@ export default class createToDo extends Component{
         this.setState({[text]:value})
     }
     
-    componentWillMount(){
+    componentDidMount(){
         calendar = { 
             title:"TODO",
             color:"orange",
-            entityType:"event",
+            // entityType:"event",
+            name: 'aaaa',
+            accessLevel: 'bbb',
+            ownerAccount: 'ccc',
+            source:{
+                name: 'm',
+                type: 'a',
+                isLocalAccount: true
+            }
         }
         AsyncStorage.getItem("calendarID").then((value) => {
             if(value == null){
                 RNCalendarEvents.saveCalendar(calendar).then((value) => {
+                    console.log('1111111111111111',value)
                     AsyncStorage.setItem("calendarID",value)
                     this.setState({calendarID:value})
                 })

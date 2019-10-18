@@ -1,13 +1,13 @@
-import React, {useState, Component} from 'react'
-import {StyleSheet, View, Text, Dimensions, FlatList, AsyncStorage, ImageBackground, Image, TextInput, TouchableOpacity} from 'react-native'
-import {images} from 'Components/ImageComponent'
-import LocalStorage from '../../Libs/LocalStorage'
+import React, {Component} from 'react'
+import {StyleSheet, View, Text, Dimensions, FlatList, AsyncStorage, TouchableOpacity} from 'react-native'
 const {width, height} = Dimensions.get('window')
 import RNCalendarEvents from 'react-native-calendar-events';
 import Moment from "moment"
+
+
 export default class ToDoList extends Component{
     static navigationOptions = {
-        title: 'TO DO List',
+        title: 'TODO List',
     };
     constructor(props){
         super(props);
@@ -22,29 +22,41 @@ export default class ToDoList extends Component{
         focusListener= null
     }
 
-    componentWillMount = async()=>{
+    componentDidMount(){
+        this.focusListener = this.props.navigation.addListener('willFocus',() => {
+            this.getDetails()
+        })
+    }
+
+    getDetails = async() =>{
         var authorize =  await  RNCalendarEvents.authorizeEventStore();
-        console.log("authorize",authorize)
-        calendar = { 
-            title:"TODO",
-            color:"orange",
-            entityType:"event",
-            // name:"TODO",
-            // ownerAccount:"test",
-            // source:{name:"test",type:"test"}
-        }
-        AsyncStorage.getItem("calendarID").then((value) => {
-            if(value == null){
-                RNCalendarEvents.saveCalendar(calendar).then((value) => {
-                    AsyncStorage.setItem("calendarID",value)
+            console.log("authorize",authorize)
+            calendar = { 
+                title:"TODO",
+                color:"orange",
+                // entityType:"event",
+                name: 'TODO',
+                accessLevel: 'test level',
+                ownerAccount: 'testing',
+                source:{
+                    name: 'test',
+                    type: 'test',
+                    isLocalAccount: true
+                }
+                
+            }
+            AsyncStorage.getItem("calendarID").then((value) => {
+                if(value == null){
+                    RNCalendarEvents.saveCalendar(calendar).then((value) => {
+                        AsyncStorage.setItem("calendarID",value)
+                        this.setState({calendarID:value})
+                        this.findEvent(value)
+                    })
+                }else{
                     this.setState({calendarID:value})
                     this.findEvent(value)
-                })
-            }else{
-                this.setState({calendarID:value})
-                this.findEvent(value)
-            }
-        })
+                }
+            })
     }
 
     findEvent(calendarid){
@@ -64,11 +76,11 @@ export default class ToDoList extends Component{
     }
     renderItem = ({ item, index }) => {
         return (
-            <View style={{padding:9,backgroundColor:'rgba(0,0,0,0.2)',borderColor:'black',borderRadius:10,borderWidth:2}}>
-                <Text style={{fontSize:22,color:'black'}}><Text style={{fontSize:22,color:'black',fontWeight:"700"}}>Title: </Text>{item.title}</Text>
-                <Text style={{fontSize:18,color:'black'}}><Text style={{fontSize:22,color:'black',fontWeight:"700"}}>Description:</Text> {item.notes}</Text>
-                <Text style={{fontSize:18,color:'black'}}><Text style={{fontSize:22,color:'black',fontWeight:"700"}}>Date and time:</Text> {Moment(item.startDate).format("MM-DD-YYYY hh:mm A")}</Text>
-            </View>
+            <TouchableOpacity style={styles.main_view} onPress={() => this.props.navigation.navigate('TodoDetail', {data: item} )}>
+                <Text style={styles.titles}>{item.title}</Text>
+                <Text style={styles.titles}>{item.notes}</Text>
+                <Text style={styles.titles_date}>{Moment(item.startDate).format("MM-DD-YYYY hh:mm A")}</Text>
+            </TouchableOpacity>
         )
     };
     render(){
@@ -95,6 +107,7 @@ const styles = StyleSheet.create({
         width,
         height,
         flex: 1,
+        backgroundColor: '#fff'
     },
     plus_btn:{
         width: 50,
@@ -110,6 +123,25 @@ const styles = StyleSheet.create({
     plus_icon:{
         color: '#fff',
         fontSize: 30
+    },
+    titles_date:{
+        fontSize: 14,
+    },
+    titles:{
+        fontSize: 14,
+        flexWrap: 'wrap',
+        flex: 1,
+        fontWeight: 'bold',
+        marginRight: 10
+    },
+    main_view:{
+        padding:9,
+        borderColor:'#ccc',
+        borderRadius:10,
+        borderWidth:1, 
+        marginTop: 10, 
+        flexDirection: 'row', 
+        justifyContent: 'space-between'
     }
     
 })
